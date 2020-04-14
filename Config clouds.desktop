@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Config clouds
+Comment=Configuracion de nube
+Exec=Config_clouds
+Icon=rclone-browser
+Path=
+Terminal=false
+StartupNotify=false
