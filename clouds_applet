@@ -63,8 +63,12 @@ class Indicator():
 
     def mount(self, souce):
         item = self.clouds.index(souce.get_label())
+        exc = f'rclone mount {self.clouds[item]}:/ {self.mounted_point[item]} -v'
+        if len(self.arguments):
+            exc = f'{exc} {self.arguments}'
+        print(exc)
         PID = subprocess.Popen(
-            f'rclone mount {self.clouds[item]}:/ {self.mounted_point[item]} -v {self.arguments}', shell=True)
+            exc, shell=True)
         self.daemon_clouds(PID, item)
 
     def daemon_clouds(self, pid, item):
@@ -82,7 +86,9 @@ class Indicator():
             time.sleep(3)
             result = self.check_mount(item)
         self.mounted.append(item)
-        self.messages(f"Mounted {self.clouds[item]}", f"Mount point {self.mounted_point[item]}")
+        self.messages(
+            f"Mounted {self.clouds[item]}",
+            f"Mount point {self.mounted_point[item]}")
         if len(self.mounted) < len(self.clouds):
             self.activate_items()
         while pid.poll() is None:
@@ -96,16 +102,22 @@ class Indicator():
 
     def unmount_cloud(self, item):
         if self.check_mount(item) == 1:
-            subprocess.run(f"fusermount -u {self.mounted_point[item]}",shell=True)
+            subprocess.run(
+                f"fusermount -u {self.mounted_point[item]}",
+                shell=True)
         self.mounted.remove(item)
-        self.messages(f"Unmounted {self.clouds[item]}", f"{self.mounted_point[item]} released")
+        self.messages(
+            f"Unmounted {self.clouds[item]}",
+            f"{self.mounted_point[item]} released")
         self.menuitems[item].set_sensitive(True)
         if not self.mounted:
             self.testindicator.set_icon('cloud')
         return False
 
     def check_mount(self, item):
-        result = subprocess.run(f"cat /proc/mounts | grep '{self.clouds[item]}: {self.mounted_point[item]}'", shell=True)
+        result = subprocess.run(
+            f"cat /proc/mounts | grep '{self.clouds[item]}: {self.mounted_point[item]}'",
+            shell=True)
         return result.returncode
 
     def messages(self, title, text):
@@ -123,15 +135,19 @@ class Indicator():
             if error == "sending notification failed!":
                 Notify.uninit()
         else:
-            Notify.uninit() 
+            Notify.uninit()
 
     def init(self):
         Gtk.main()
 
     def stop(self, source):
-        self.messages(f"Unmounted all Clouds", f"All Mount point is released")
+        self.messages(
+            f"Unmounted all Clouds",
+            f"All Mount point is released")
         for i in self.mounted:
-            subprocess.run(f"fusermount -u {self.mounted_point[i]}", shell=True)
+            subprocess.run(
+                f"fusermount -u {self.mounted_point[i]}",
+                shell=True)
         Gtk.main_quit()
 
 
