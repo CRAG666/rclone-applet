@@ -2,7 +2,6 @@
 from os import path
 import linecache
 import gi
-import subprocess
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
@@ -84,7 +83,6 @@ class Config_clouds(Gtk.Window):
             data_clouds = "".join(i.get_text() + '\n' for i in self.labels)
             with open(self.cloud_cofig, 'w') as file:
                 file.write(data_clouds)
-            subprocess.run("kill -9 $(ps -ef | grep /usr/local/bin/clouds_applet -m 1| awk '{print $2}')", shell=True)
         widget.destroy()
     
     def on_Delete_clicked(self, source):
