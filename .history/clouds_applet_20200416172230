@@ -16,23 +16,24 @@ from gi.repository import Gtk, AppIndicator3, GObject, GLib, Notify, GdkPixbuf
 class Indicator():
     def __init__(self):
         config_folder = path.expanduser('~/.config/clouds_applet_config/')
-        config = "".join([config_folder, 'arguments.txt'])
-        self.arguments = "".join(
-            linecache.getline(
-                config, i).replace("\n", " ")
-                for i in range(1, self.numLinesFile(config) + 1))
-        app, iconpath = 'rclone', "cloud"
-        config = "".join([config_folder, 'clouds_config.txt'])
+        config = config_folder + 'arguments.txt'
+        self.arguments = "".join(linecache.getline(
+            config, i).replace("\n", " ") for i in range(1, self.numLinesFile(config) + 1))
+        self.app = 'rclone'
+        iconpath = "cloud"
+        config = config_folder + 'clouds_config.txt'
         clouds = [linecache.getline(
             config, i) for i in range(1, self.numLinesFile(config) + 1)]
 
-        self.clouds, self.mounted_point = [], []
+        self.clouds = []
+        self.mounted_point = []
         for i in clouds:
             self.clouds.append(i[0:i.index(':')])
             self.mounted_point.append(path.expanduser(i[i.index(':') + 1:i.index('\n')]))
-        self.menuitems, self.mounted = [], []
+        self.menuitems = []
+        self.mounted = []
         self.testindicator = AppIndicator3.Indicator.new(
-            app, iconpath,
+            self.app, iconpath,
             AppIndicator3.IndicatorCategory.OTHER)
         self.testindicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
         self.testindicator.set_menu(self.create_menu())
@@ -49,8 +50,8 @@ class Indicator():
 
     def create_menu(self):
         menu = Gtk.Menu()
-        for i in self.clouds:
-            items = Gtk.MenuItem(i)
+        for i in range(len(self.clouds)):
+            items = Gtk.MenuItem(self.clouds[i])
             items.connect('activate', self.mount)
             self.menuitems.append(items)
             menu.append(items)
@@ -63,8 +64,8 @@ class Indicator():
     def mount(self, souce):
         item = self.clouds.index(souce.get_label())
         exc = f'rclone mount {self.clouds[item]}:/ {self.mounted_point[item]} -v'
-        if any(self.arguments):
-            exc = " ".join([exc, self.arguments])
+        if len(self.arguments):
+            exc = f'{exc} {self.arguments}'
         print(exc)
         PID = subprocess.Popen(
             exc, shell=True)
@@ -75,9 +76,10 @@ class Indicator():
             i.set_sensitive(False)
         self.messages(f"Mounting {self.clouds[item]}", f"In {self.mounted_point[item]}")
         self.testindicator.set_icon('rclone-browser')
-        thread = threading.Thread(target=self.mounted_cloud, args=(pid, item))
+        GLib.idle_add(pid, item)
+        """thread = threading.Thread(target=self.mounted_cloud, args=(pid, item))
         thread.daemon = True
-        thread.start()
+        thread.start()"""
 
     def mounted_cloud(self, pid, item):
         result = self.check_mount(item)
@@ -93,6 +95,7 @@ class Indicator():
         while pid.poll() is None:
             time.sleep(5)
         GLib.idle_add(self.unmount_cloud, item)
+        return False
 
     def activate_items(self):
         for i in range(len(self.menuitems)):
@@ -140,7 +143,9 @@ class Indicator():
         Gtk.main()
 
     def stop(self, source):
-        self.messages("Unmounted all Clouds", "All Mount point is released")
+        self.messages(
+            f"Unmounted all Clouds",
+            f"All Mount point is released")
         for i in self.mounted:
             subprocess.run(
                 f"fusermount -u {self.mounted_point[i]}",

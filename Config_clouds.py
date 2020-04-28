@@ -37,16 +37,16 @@ class Config_clouds(Gtk.Window):
         self.selectfolder.set_action(Gtk.FileChooserAction.SELECT_FOLDER)
         self.window.connect('destroy', Gtk.main_quit)
         self.window.show_all()
- 
+
     def createWidgets(self, label, i):
         self.buttons.append(Gtk.Button())
         self.buttons[i - 1].set_label('Delete')
         self.buttons[i - 1].connect('clicked', self.on_Delete_clicked)
         self.labels.append(Gtk.Label())
         self.labels[i - 1].set_text(label)
-        self.grid.attach(self.buttons[i - 1], 2, i, 1,1)
-        self.grid.attach(self.labels[i - 1], 1, i, 1,1)
-    
+        self.grid.attach(self.buttons[i - 1], 2, i, 1, 1)
+        self.grid.attach(self.labels[i - 1], 1, i, 1, 1)
+
     def numLinesFile(self, rute):
         numLines = -1
         try:
@@ -56,7 +56,7 @@ class Config_clouds(Gtk.Window):
         except FileNotFoundError:
             print("the route no correct")
         return numLines
-    
+
     def on_add_clicked(self, source):
         name = self.name.get_text()
         rute = self.selectfolder.get_file()
@@ -66,14 +66,14 @@ class Config_clouds(Gtk.Window):
             self.grid.show_all()
 
     def on_Save_config(self, source):
-        messagedialog = Gtk.MessageDialog(parent=self,
-                                          modal=True,
-                                          destroy_with_parent=True,
-                                          message_type=Gtk.MessageType.WARNING,
-                                          text="Save all changes",
-                                          buttons=Gtk.ButtonsType.OK_CANCEL)
-        messagedialog.connect("response", self.dialog_response)
-        messagedialog.show()
+        Savechanges = Gtk.MessageDialog(parent=self,
+                                        modal=True,
+                                        destroy_with_parent=True,
+                                        message_type=Gtk.MessageType.WARNING,
+                                        text="Save all changes",
+                                        buttons=Gtk.ButtonsType.OK_CANCEL)
+        Savechanges.connect("response", self.dialog_response)
+        Savechanges.show()
 
     def dialog_response(self, widget, response_id):
         if response_id == Gtk.ResponseType.OK:
@@ -84,7 +84,7 @@ class Config_clouds(Gtk.Window):
             with open(self.cloud_cofig, 'w') as file:
                 file.write(data_clouds)
         widget.destroy()
-    
+
     def on_Delete_clicked(self, source):
         self.grid.remove_row(self.buttons.index(source) + 1)
         del self.labels[self.buttons.index(source)]
@@ -92,8 +92,8 @@ class Config_clouds(Gtk.Window):
 
     def getText(self, textview):
         buffer = textview.get_buffer()
-        startIter, endIter = buffer.get_bounds()    
-        text = buffer.get_text(startIter, endIter, False) 
+        startIter, endIter = buffer.get_bounds()
+        text = buffer.get_text(startIter, endIter, False)
         return text
 
     def init(self):
@@ -104,5 +104,5 @@ class Config_clouds(Gtk.Window):
 
 
 if __name__ == "__main__":
-    app=Config_clouds()
+    app = Config_clouds()
     app.init()

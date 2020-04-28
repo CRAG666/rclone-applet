@@ -17,10 +17,8 @@ class Indicator():
     def __init__(self):
         config_folder = path.expanduser('~/.config/clouds_applet_config/')
         config = "".join([config_folder, 'arguments.txt'])
-        self.arguments = "".join(
-            linecache.getline(
-                config, i).replace("\n", " ")
-                for i in range(1, self.numLinesFile(config) + 1))
+        self.arguments = "".join(linecache.getline(
+            config, i).replace("\n", " ") for i in range(1, self.numLinesFile(config) + 1))
         app, iconpath = 'rclone', "cloud"
         config = "".join([config_folder, 'clouds_config.txt'])
         clouds = [linecache.getline(
@@ -140,7 +138,9 @@ class Indicator():
         Gtk.main()
 
     def stop(self, source):
-        self.messages("Unmounted all Clouds", "All Mount point is released")
+        self.messages(
+            f"Unmounted all Clouds",
+            f"All Mount point is released")
         for i in self.mounted:
             subprocess.run(
                 f"fusermount -u {self.mounted_point[i]}",

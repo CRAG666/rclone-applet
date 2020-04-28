@@ -17,10 +17,8 @@ class Indicator():
     def __init__(self):
         config_folder = path.expanduser('~/.config/clouds_applet_config/')
         config = "".join([config_folder, 'arguments.txt'])
-        self.arguments = "".join(
-            linecache.getline(
-                config, i).replace("\n", " ")
-                for i in range(1, self.numLinesFile(config) + 1))
+        self.arguments = "".join(linecache.getline(
+            config, i).replace("\n", " ") for i in range(1, self.numLinesFile(config) + 1))
         app, iconpath = 'rclone', "cloud"
         config = "".join([config_folder, 'clouds_config.txt'])
         clouds = [linecache.getline(
@@ -49,8 +47,8 @@ class Indicator():
 
     def create_menu(self):
         menu = Gtk.Menu()
-        for i in self.clouds:
-            items = Gtk.MenuItem(i)
+        for i in range(len(self.clouds)):
+            items = Gtk.MenuItem(self.clouds[i])
             items.connect('activate', self.mount)
             self.menuitems.append(items)
             menu.append(items)
@@ -64,7 +62,7 @@ class Indicator():
         item = self.clouds.index(souce.get_label())
         exc = f'rclone mount {self.clouds[item]}:/ {self.mounted_point[item]} -v'
         if any(self.arguments):
-            exc = " ".join([exc, self.arguments])
+            exc = f'{exc} {self.arguments}'
         print(exc)
         PID = subprocess.Popen(
             exc, shell=True)
@@ -140,7 +138,9 @@ class Indicator():
         Gtk.main()
 
     def stop(self, source):
-        self.messages("Unmounted all Clouds", "All Mount point is released")
+        self.messages(
+            f"Unmounted all Clouds",
+            f"All Mount point is released")
         for i in self.mounted:
             subprocess.run(
                 f"fusermount -u {self.mounted_point[i]}",
