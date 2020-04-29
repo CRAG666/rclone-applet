@@ -50,11 +50,11 @@ class Indicator():
     def create_menu(self):
         menu = Gtk.Menu()
         for i in self.clouds:
-            items = Gtk.MenuItem(i)
+            items = Gtk.MenuItem(label=i)
             items.connect('activate', self.mount)
             self.menuitems.append(items)
             menu.append(items)
-        menu_quit = Gtk.MenuItem('Quit')
+        menu_quit = Gtk.MenuItem(label='Quit')
         menu_quit.connect('activate', self.stop)
         menu.append(menu_quit)
         menu.show_all()
