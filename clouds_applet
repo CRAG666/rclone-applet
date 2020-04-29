@@ -74,7 +74,7 @@ class Indicator():
         for i in self.menuitems:
             i.set_sensitive(False)
         self.messages(f"Mounting {self.clouds[item]}", f"In {self.mounted_point[item]}")
-        self.testindicator.set_icon('rclone-browser')
+        self.testindicator.set_icon_full('rclone-browser', "mount")
         thread = threading.Thread(target=self.mounted_cloud, args=(pid, item))
         thread.daemon = True
         thread.start()
@@ -110,7 +110,7 @@ class Indicator():
             f"{self.mounted_point[item]} released")
         self.menuitems[item].set_sensitive(True)
         if not self.mounted:
-            self.testindicator.set_icon('cloud')
+            self.testindicator.set_icon_full('cloud',"no mount")
         return False
 
     def check_mount(self, item):
@@ -119,22 +119,31 @@ class Indicator():
             shell=True)
         return result.returncode
 
-    def messages(self, title, text):
-        try:
-            if Notify.init(argv[0]):
-                n = Notify.Notification.new("Notify")
-                n.update(title, text, 'usbpendrive_unmount')
-                n.set_urgency(2)
-                if not n.show():
-                    raise SyntaxError("sending notification failed!")
-            else:
-                raise SyntaxError("can't initialize notification!")
-        except SyntaxError as error:
-            print(error)
-            if error == "sending notification failed!":
-                Notify.uninit()
-        else:
-            Notify.uninit()
+    def messages(self, title, message):
+        '''
+        Show a notification using libnotify/gobject
+
+        Positional arguments:
+        title - notification title
+        message - notification message
+
+        Raises:
+        RuntimeError - failed to show the notification
+
+        Note:
+        This function is designed to be called a few times in a row so
+        make sure to call Notify.uninit() afterwards
+        '''
+        if Notify.is_initted() is False:
+            Notify.init('docker')
+
+        if Notify.is_initted() is False:
+            raise RuntimeError('Failed to init notify')
+
+        notif = Notify.Notification.new(title, message, 'usbpendrive_unmount')
+
+        if not notif.show():
+            raise RuntimeError('Failed to show a notification')
 
     def init(self):
         Gtk.main()
