@@ -1,13 +1,3 @@
 #!/usr/bin/bash
-#pip install -r requirements.txt
-if [ -d $HOME/.config/clouds_applet_config ];then
-	echo "Folder is in the system"
-else
-	cp -r clouds_applet_config $HOME/.config/
-fi
-cp Config_clouds /usr/local/bin/
-cp clouds_applet /usr/local/bin/
-cp Config_clouds.py /usr/local/bin/
-cp 'Config clouds.desktop' /usr/share/applications
-cp Config_clouds.glade /usr/local/bin/
+cp docker-indicator /usr/local/bin/
 echo "instalation completed"
