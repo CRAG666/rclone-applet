@@ -1,0 +1,5 @@
+--cache-db-purge
+--no-modtime
+--buffer-size 100M
+--dir-cache-time 72h
+--timeout 1h
