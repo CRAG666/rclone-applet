@@ -63,9 +63,9 @@ class Indicator():
     def mount(self, souce):
         item = self.clouds.index(souce.get_label())
         exc = f'rclone mount {self.clouds[item]}:/ {self.mounted_point[item]} -v'
+        print(exc)
         if any(self.arguments):
             exc = " ".join([exc, self.arguments])
-        print(exc)
         PID = subprocess.Popen(
             exc, shell=True)
         self.daemon_clouds(PID, item)
